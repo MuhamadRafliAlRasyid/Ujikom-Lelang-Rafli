@@ -8,11 +8,16 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import lelang.Encrypt;
 import lelang.Koneksi;
 import lelang.UserSession;
 import lelang.menu.Masyarakat;
@@ -28,7 +33,10 @@ public class Pembayaran extends javax.swing.JFrame {
     private String sql, sql2, sql3, sql4;
     private Koneksi kon = new Koneksi();
     private DefaultTableModel model;
+    private UserSession a;
+    private List<UserSession> list;
     private UserSession session = new UserSession();
+    private Encrypt enc = new Encrypt();
     private SimpleDateFormat fm = new SimpleDateFormat("dd-MM-yyyy");
     /**
      * Creates new form Pembayaran
@@ -39,53 +47,31 @@ public class Pembayaran extends javax.swing.JFrame {
         con = kon.con;
         stat = kon.stat;
         stat2 = kon.stat;
-        aturTable();
         namauser();
+        pembayaran();
         id.setEditable(false);
         bayar.setEditable(false);
     }
     
     public void reset(){
-       
-        nominal.setText("");
+        bayar.setText("");
         id.setText("");
     }
-    private void aturTable(){
-        TableColumn column = null;
-        String[] judul = {"id","Nama Barang", "Tgl Lelang", "Harga Awal", "Harga Akhir", "Penawar","Keterangan"};
-        model = new DefaultTableModel(null, judul){
-            @Override
-            public boolean isCellEditable(int row,int column){
-                return false;
-            }
-        };
-        jTable1.setModel(model);
-        
+    private void pembayaran(){
         try{
-            sql = "SELECT * FROM tb_lelang INNER JOIN tb_barang ON tb_lelang.id_barang = tb_barang.id_barang LEFT JOIN tb_masyarakat ON tb_lelang.id_user = tb_masyarakat.id_user INNER JOIN tb_petugas ON tb_lelang.id_petugas = tb_petugas.id_petugas WHERE tb_masyarakat.id_user='"+ session.getId() +"'AND status='ditutup' AND Keterangan='belum dibayar'";
+            sql = "SELECT SUM(harga_akhir) As bayar FROM tb_lelang INNER JOIN tb_masyarakat ON tb_lelang.id_user = tb_masyarakat.id_user  WHERE tb_masyarakat.id_user='"+ session.getId() +"'AND status='ditutup' AND Keterangan='belum dibayar'";
             rs = stat.executeQuery(sql);
-            while(rs.next()){
-                Object[] isi = {String.valueOf(rs.getString("id_lelang")),rs.getString("nama_barang"),String.valueOf(fm.format(rs.getDate("tgl_lelang"))),rs.getString("harga_awal"), rs.getString("harga_akhir") == null ? "Belum Ada" : rs.getString("harga_akhir"), rs.getString("nama_lengkap") == null ? "Belum Ada" : rs.getString("nama_lengkap"), rs.getString("Keterangan") == null ? "Belum Ada" : rs.getString("Keterangan")};
-                model.addRow(isi);
+            if(rs.next()){
+                String total = String.valueOf(rs.getInt("bayar")+15000);
+                if(total.equalsIgnoreCase("15000")){
+                    JOptionPane.showMessageDialog(null,"Tidak Ada Tagihan Bid");
+                }else{
+                    bayar.setText(String.valueOf(total));
+                    id.setText(String.valueOf(session.getId()));
+                }   
             }
-            
-            ((DefaultTableCellRenderer)jTable1.getTableHeader().getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
-            jTable1.setModel(model);
-            
-            DefaultTableCellRenderer render = new DefaultTableCellRenderer();
-            render.setHorizontalAlignment(JLabel.CENTER);
-            jTable1.getColumnModel().getColumn(0).setCellRenderer(render);
-            
-            jTable1.getColumnModel().getColumn(1).setCellRenderer(render);
-            
-            jTable1.getColumnModel().getColumn(2).setCellRenderer(render);
-            
-            jTable1.getColumnModel().getColumn(3).setCellRenderer(render);
-            
-            jTable1.getColumnModel().getColumn(4).setCellRenderer(render);
-            
         }catch (Exception e){
-            JOptionPane.showMessageDialog(null,"gagal"+e.getMessage());
+            JOptionPane.showMessageDialog(null,e.getMessage());
         }
     }
     /**
@@ -100,19 +86,16 @@ public class Pembayaran extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         id = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        nominal = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
         bayar = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
         jLabel2 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
         jPanel9 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
@@ -137,10 +120,7 @@ public class Pembayaran extends javax.swing.JFrame {
 
         jLabel3.setFont(new java.awt.Font("geektastic", 1, 24)); // NOI18N
         jLabel3.setText("Alamat                     :");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 190, -1, 30));
-
-        nominal.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        jPanel1.add(nominal, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 130, 340, 30));
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 140, -1, 30));
 
         jButton1.setBackground(new java.awt.Color(0, 153, 255));
         jButton1.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
@@ -151,7 +131,7 @@ public class Pembayaran extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 330, 130, 40));
+        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 290, 130, 40));
 
         jLabel4.setFont(new java.awt.Font("geektastic", 1, 36)); // NOI18N
         jLabel4.setText("Pembayaran Bid");
@@ -159,33 +139,6 @@ public class Pembayaran extends javax.swing.JFrame {
 
         jLabel5.setText("jLabel5");
         jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(-50, 20, 540, -1));
-
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Penawaran Bid Anda", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 14))); // NOI18N
-        jScrollPane1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jScrollPane1MouseClicked(evt);
-            }
-        });
-
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {},
-                {},
-                {},
-                {}
-            },
-            new String [] {
-
-            }
-        ));
-        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jTable1MouseClicked(evt);
-            }
-        });
-        jScrollPane1.setViewportView(jTable1);
-
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 390, 800, 180));
 
         bayar.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         bayar.addActionListener(new java.awt.event.ActionListener() {
@@ -199,21 +152,24 @@ public class Pembayaran extends javax.swing.JFrame {
         jLabel6.setText("Besar Pembayaran  :");
         jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 70, -1, -1));
 
-        jLabel1.setText("*Isi alamat rumah anda dengan benar ");
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 280, -1, -1));
-
-        jLabel7.setFont(new java.awt.Font("geektastic", 1, 24)); // NOI18N
-        jLabel7.setText("Masukan Nominal   :");
-        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 130, -1, 30));
+        jLabel1.setText("*Kosongkan Jika Sudah Pernah Mengisi");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 240, -1, -1));
 
         jScrollPane2.setViewportView(jTextPane1);
 
-        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 190, 340, 90));
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 140, 340, 90));
 
         jLabel2.setText("* Ditambah Ongkos kirim Sebesar 15.000");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 100, -1, -1));
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 100, -1, -1));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 930, 580));
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(131, 30, 0, -1));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 930, 370));
 
         jPanel9.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -293,52 +249,47 @@ public class Pembayaran extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         long kembalian;
-        if(nominal.getText().equals("")) {
-            JOptionPane.showMessageDialog(null, "Masukkan Jumlah Pembayaran");
-        } else {
-            if(Long.parseLong(bayar.getText()) <= Long.parseLong(nominal.getText())) {
-                kembalian =  Long.parseLong(nominal.getText()) - Long.parseLong(bayar.getText());
-                JOptionPane.showMessageDialog(null, "Terima kasih telah berkunjung. Kembaliannya " + kembalian);
-                try {
-                    if(jTextPane1.getText().isEmpty()){
-                    stat = con.createStatement();
-                    stat.executeUpdate("update tb_lelang set Keterangan ='dibayar' where id_lelang='"+jTable1.getValueAt(jTable1.getSelectedRow(),0)+"'");
-                    Pembayaran bayar = new Pembayaran();
-                    bayar.setVisible(true);
-                    this.dispose();
-                    }else{
-                    stat = con.createStatement();
-                    stat.execute("update tb_masyarakat set alamat ='"+jTextPane1.getText()+"' where id_user='"+ session.getId() +"'");
-                    stat.executeUpdate("update tb_lelang set Keterangan ='dibayar' where id_lelang='"+jTable1.getValueAt(jTable1.getSelectedRow(),0)+"'");
-                    Pembayaran bayar = new Pembayaran();
-                    bayar.setVisible(true);
-                    this.dispose();
-                    }
-                   
-                } catch(Exception a) {
-                    a.printStackTrace();
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Maaf Uang Anda Masih Kurang Dari Jumlah Bid Anda");
-            }
-        }
-        reset();
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
-        // TODO add your handling code here:
+        JPasswordField pwd = new JPasswordField(10);
+        String result = JOptionPane.showInputDialog(pwd, "Masukkan password akun");
+        String pass;
+        pass = enc.getMD5EncryptedValue(result);
         try{
-            sql = "SELECT * FROM tb_lelang INNER JOIN tb_barang ON tb_lelang.id_barang = tb_barang.id_barang LEFT JOIN tb_masyarakat ON tb_lelang.id_user = tb_masyarakat.id_user INNER JOIN tb_petugas ON tb_lelang.id_petugas = tb_petugas.id_petugas WHERE tb_lelang.id_lelang='"+jTable1.getValueAt(jTable1.getSelectedRow(),0)+"'";
-            rs = stat.executeQuery(sql);
-            if(rs.next()){
-                String total = String.valueOf(rs.getInt("harga_akhir")+15000);
-                bayar.setText(String.valueOf(total));
-                id.setText(rs.getString("id_lelang"));
-            }
-        }catch (Exception e){
-            JOptionPane.showMessageDialog(null,e.getMessage());
+            sql = "SELECT * FROM tb_masyarakat WHERE username='" + jTextField1.getText() +"' AND password='" + pass +"'";
+                    rs = stat.executeQuery(sql);
+
+                    if(rs.next()){
+                        if(jTextField1.getText().equals(rs.getString("username"))){
+                            try {
+                                if(jTextPane1.getText().isEmpty()){
+                                stat = con.createStatement();
+                                stat.executeUpdate("update tb_lelang set Keterangan ='dibayar' where id_lelang='"+id.getText()+"'AND status='ditutup' AND Keterangan='belum dibayar'");
+                                new Masyarakat().show();
+                                JOptionPane.showMessageDialog(null,"Terimkasih telah membayar !! Barang Anda akan kami kirim ke alamat yang lama");
+                                this.dispose();
+                                }else{
+                                stat = con.createStatement();
+                                stat.execute("update tb_masyarakat set alamat ='"+jTextPane1.getText()+"' where id_user='"+ session.getId() +"'");
+                                stat.executeUpdate("update tb_lelang set Keterangan ='dibayar' where id_user='"+session.getId()+"'AND status='ditutup' AND Keterangan='belum dibayar'");
+                                new Masyarakat().show();
+                                JOptionPane.showMessageDialog(null,"Terimkasih telah membayar !! Barang Anda akan kami kirim ke alamat terbaru");
+                                this.dispose();
+                                }
+
+                            } catch(Exception a) {
+                                a.printStackTrace();
+                            }
+                        }else{
+                            JOptionPane.showMessageDialog(null,"gagal");
+                        }
+                    }else{
+                        JOptionPane.showMessageDialog(null,"Gagal\nUsername atau Password salah","Informasi",JOptionPane.ERROR_MESSAGE);
+                    }
+        }catch(Exception E){
+        JOptionPane.showMessageDialog(null,E.getMessage());              
         }
-    }//GEN-LAST:event_jTable1MouseClicked
+       
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
     private void namauser(){
         try{
             sql = "SELECT * FROM tb_masyarakat where tb_masyarakat.id_user = '"+ session.getId() +"'";
@@ -346,15 +297,12 @@ public class Pembayaran extends javax.swing.JFrame {
             while(rs.next()){
                 Object[] isi = {rs.getString("nama_lengkap")};
                 jLabel28.setText("Hai! "+rs.getString("nama_lengkap"));
+                jTextField1.setText(rs.getString("username"));
             } 
         }catch (Exception e){
             JOptionPane.showMessageDialog(null,"gagal"+e.getMessage());
         }
     }
-    private void jScrollPane1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane1MouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jScrollPane1MouseClicked
-
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         new Masyarakat().show();
@@ -368,6 +316,10 @@ public class Pembayaran extends javax.swing.JFrame {
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         this.dispose();
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -395,6 +347,9 @@ public class Pembayaran extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -418,14 +373,11 @@ public class Pembayaran extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel9;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextPane jTextPane1;
-    private javax.swing.JTextField nominal;
     // End of variables declaration//GEN-END:variables
 }

@@ -34,4 +34,8 @@ public class Encrypt {
         }
         return password;
     }
+
+    public int getMD5EncryptedValue(int result) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
