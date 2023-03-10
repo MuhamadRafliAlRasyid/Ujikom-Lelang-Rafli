@@ -532,6 +532,7 @@ public class CrudPetugas extends javax.swing.JFrame {
                             return;
                         }else{
                             sql = "UPDATE tb_petugas SET nama_petugas='"+ jTextField3.getText() +"', username='"+ jTextField1.getText() +"', password='"+ pass +"', id_level='"+ level +"' WHERE id_petugas='"+ jTextField2.getText() +"'";
+                            
                         }
                     }
                 }else if(!session.getUsername().equals(jTextField1.getText())){
@@ -563,12 +564,14 @@ public class CrudPetugas extends javax.swing.JFrame {
                     } else {
                         if(jPasswordField1.getText().isEmpty()){
                             sql = "UPDATE tb_petugas SET nama_petugas='"+ jTextField3.getText() +"', username='"+ jTextField1.getText() +"', id_level='"+ level +"' WHERE id_petugas='"+ jTextField2.getText() +"'";
+                            
                         }else{
                             if(jPasswordField1.getText().length() < 7){
                                 JOptionPane.showMessageDialog(null, "Password minimal terdiri dari 7 huruf");
                                 return;
                             }else{
                                 sql = "UPDATE tb_petugas SET nama_petugas='"+ jTextField3.getText() +"', username='"+ jTextField1.getText() +"', password='"+ pass +"', id_level='"+ level +"' username='"+ jTextField1.getText() +"' WHERE id_petugas='"+ jTextField2.getText() +"'";
+                                
                             }
                         }
                     }
@@ -579,11 +582,12 @@ public class CrudPetugas extends javax.swing.JFrame {
 
                 model.fireTableDataChanged();
                 model.getDataVector().removeAllElements();
-
+                
+                petugas();
                 aturTable();
                 reset();
                 dataCB();
-                sembunyiCRUD();
+                petugas();
                 jLabel7.setVisible(false);
             }catch(Exception e){
                 JOptionPane.showMessageDialog(null, e.getMessage());

@@ -8,6 +8,8 @@ import java.sql.*;
 import java.util.*;
 import javax.swing.*;
 import lelang.menu.*;
+import lelang.transaction.Pembayaran;
+import lelang.transaction.Pembayaran1;
 /**
  *
  * @author Muhamad Rafl Al Rasyid
@@ -34,6 +36,25 @@ public class Login extends javax.swing.JFrame {
         stat = kon.stat;
         this.setTitle("Login");
         jTextField1.requestFocus();
+    }
+    private void pembayaran(){
+        try{
+            sql = "SELECT SUM(harga_akhir) As bayar FROM tb_lelang INNER JOIN tb_masyarakat ON tb_lelang.id_user = tb_masyarakat.id_user  WHERE tb_masyarakat.id_user='"+ session.getId() +"'AND status='ditutup' AND Keterangan='belum dibayar'";
+            rs = stat.executeQuery(sql);
+            if(rs.next()){
+                String total = String.valueOf(rs.getInt("bayar")+15000);
+                if(total.equalsIgnoreCase("15000")){
+                    new Masyarakat().show();
+                    this.dispose();
+                }else{
+                    this.dispose();
+                    new Pembayaran1().show();
+                    JOptionPane.showMessageDialog(null,"Selamat Anda Memenangkan lelang yang anda Bid ");
+                }   
+            }
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(null,e.getMessage());
+        }
     }
 
     /**
@@ -289,9 +310,7 @@ public class Login extends javax.swing.JFrame {
                             a.setPassword(rs.getString("password"));
                             a.setName(rs.getString("nama_lengkap"));
                             list.add(a);
-
-                            new Masyarakat().show();
-                            this.dispose();
+                            pembayaran();
                         }else{
                             JOptionPane.showMessageDialog(null,"Gagal\nUsername atau Password salah","Informasi",JOptionPane.ERROR_MESSAGE);
                         }

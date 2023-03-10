@@ -13,6 +13,7 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -26,7 +27,7 @@ import lelang.menu.Masyarakat;
  *
  * @author User
  */
-public class Pembayaran extends javax.swing.JFrame {
+public class Pembayaran1 extends javax.swing.JFrame {
     private Connection con;
     private ResultSet rs, rs2;
     private Statement stat, stat2;
@@ -41,7 +42,7 @@ public class Pembayaran extends javax.swing.JFrame {
     /**
      * Creates new form Pembayaran
      */
-    public Pembayaran() {
+    public Pembayaran1() {
         initComponents();
         reset();
         con = kon.con;
@@ -151,7 +152,7 @@ public class Pembayaran extends javax.swing.JFrame {
         jLabel6.setText("Besar Pembayaran  :");
         jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 70, -1, -1));
 
-        jLabel1.setText("*Kosongkan Jika Sudah Pernah Mengisi");
+        jLabel1.setText("*Wajib mengisi alamat dengan Benar");
         jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 240, -1, -1));
 
         jScrollPane2.setViewportView(jTextPane1);
@@ -234,9 +235,13 @@ public class Pembayaran extends javax.swing.JFrame {
     }//GEN-LAST:event_idActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        if(jTextPane1.getText().isEmpty()){
+            JOptionPane.showMessageDialog(null, "Ada data yang belum di isi","Informasi",JOptionPane.INFORMATION_MESSAGE);
+        }else{
         long kembalian;
         JPasswordField pwd = new JPasswordField(10);
-        String result = JOptionPane.showInputDialog(pwd, "Masukkan password akun");
+        int action = JOptionPane.showConfirmDialog(null, pwd,"Masukan Password",JOptionPane.OK_CANCEL_OPTION);
+        String result = String.valueOf(pwd.getPassword());
         String pass;
         pass = enc.getMD5EncryptedValue(result);
         try{
@@ -248,6 +253,7 @@ public class Pembayaran extends javax.swing.JFrame {
                             try {
                                 if(jTextPane1.getText().isEmpty()){
                                 stat = con.createStatement();
+                                stat.execute("update tb_masyarakat set alamat ='"+jTextPane1.getText()+"' where id_user='"+ session.getId() +"'");
                                 stat.executeUpdate("update tb_lelang set Keterangan ='dibayar' where id_lelang='"+id.getText()+"'AND status='ditutup' AND Keterangan='belum dibayar'");
                                 new Masyarakat().show();
                                 JOptionPane.showMessageDialog(null,"Terimkasih telah membayar !! Barang Anda akan kami kirim ke alamat yang lama");
@@ -273,7 +279,7 @@ public class Pembayaran extends javax.swing.JFrame {
         }catch(Exception E){
         JOptionPane.showMessageDialog(null,E.getMessage());              
         }
-       
+        }
         
     }//GEN-LAST:event_jButton1ActionPerformed
     private void namauser(){
@@ -318,14 +324,18 @@ public class Pembayaran extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Pembayaran1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Pembayaran1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Pembayaran1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Pembayaran.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Pembayaran1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -334,7 +344,7 @@ public class Pembayaran extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Pembayaran().setVisible(true);
+                new Pembayaran1().setVisible(true);
             }
         });
     }
